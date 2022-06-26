@@ -59,6 +59,10 @@ async function createServer(){
         }
     })
 
+    app.get('/', (req, res) => {
+        res.sendFile(__dirname + '/index.html')
+    })
+
     app.listen(process.env.PORT || PORT, () => {
         console.log('Server is running...');
     })
