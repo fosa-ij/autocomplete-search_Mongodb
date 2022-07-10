@@ -1,9 +1,9 @@
 $(document).ready(function () {
     $('#title').autocomplete({
-        soucre: async function(request, response){
-            let data = await fetch(`https://localhost:8000/search?query=${request.term}`)
+        source: async function(request, response){
+            let data = await fetch(`http://localhost:8000/search?query=${request.term}`)
                     .then(results => results.json())
-                    .then(results => results.map(result => {
+                    .then(results => results.slice(0, 15).map(result => {
                         return {
                             label: result.title,
                             value: result.title, 
@@ -15,17 +15,15 @@ $(document).ready(function () {
         minLength: 2,
         select: function(event, ui){
             console.log(ui.item.id)
-            fetch(`https://localhost:8000/get/${ui.item.id}`)
+            fetch(`http://localhost:8000/get/${ui.item.id}`)
                 .then(result => result.json())
                 .then(result => {
                     $('#cast').empty()
-                    result.cast.forEach(cast => {
-                        $(cast).append(`<li>${cast}</li>`)
+                    result.cast.forEach((cast, i) => {
+                        $("#cast").append(`<li>${cast}</li>`)
                     })
                     $('img').attr('src', result.poster)
                 })
         }
     })
-}
-
-)
+})

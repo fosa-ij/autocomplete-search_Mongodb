@@ -2,12 +2,15 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const {MongoClient, ObjectId} = require('mongodb')
+const { response } = require('express')
+const { request } = require('http')
 require('dotenv').config()
 const PORT = 8000
 
 let db, 
     dbName = 'sample_mflix',
     dbConnectionStr = process.env.DB_STRING,
+    // dbConnectionStr = process.env.DB_STRING_TWO,
     collection
 
 async function createServer(){
@@ -24,13 +27,13 @@ async function createServer(){
     app.use(express.json())
     app.use(cors())
 
-    app.get('/search', async (req, res) => {
+    app.get('/search', async (request, response) => {
         try{
             let result = await collection.aggregate([
                 {
                     "$search" : {
                         "autocomplete" : {
-                            "query" : `${req.query.query}`,
+                            "query" :  `${request.query.query}`,
                             "path": "title", 
                             "fuzzy": {
                                 "maxEdits": 2,
@@ -40,28 +43,28 @@ async function createServer(){
                     }
                 }
             ]).toArray()
-            res.send(result)
+            response.send(result)
 
-        } catch(err){
-            // console.error(err);
-            res.status(500).send({message: error.message})
+        } catch(error){
+            console.error(err);
+            response.status(500).send({message: error.message})
         }
     })
 
-    app.get('/get/:id', async (req, res) => {
+    app.get('/get/:id', async (request, response) => {
         try{
             let result = await collection.findOne({
-                "_id": ObjectId(req.params.id)
+                '_id': ObjectId(request.params.id)
             })
             response.send(result)
-        } catch(err){
-            res.status(500).send({message: error.message})
+        } catch(error){
+            response.status(500).send({message: error.message})
         }
     })
 
-    app.get('/', (req, res) => {
-        res.sendFile(__dirname + '/index.html')
-    })
+    // app.get('/', (req, res) => {
+    //     res.sendFile(__dirname + '/index.html')
+    // })
 
     app.listen(process.env.PORT || PORT, () => {
         console.log('Server is running...');
